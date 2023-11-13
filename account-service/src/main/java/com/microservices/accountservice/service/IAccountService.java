@@ -1,7 +1,7 @@
 package com.microservices.accountservice.service;
 
-import com.microservices.accountservice.dto.AccountRequestDTO;
-import com.microservices.accountservice.dto.AccountResponseDTO;
+import com.microservices.accountservice.dto.account.AccountRequestDTO;
+import com.microservices.accountservice.dto.account.AccountResponseDTO;
 
 import java.util.List;
 

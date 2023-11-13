@@ -1,45 +1,52 @@
 package com.microservices.accountservice.service.Impl;
 
-import com.microservices.accountservice.dto.MovementRequestDTO;
-import com.microservices.accountservice.dto.MovementResponseDTO;
+import com.microservices.accountservice.dto.movement.MovementDTO;
+import com.microservices.accountservice.dto.movement.MovementRequestDTO;
+import com.microservices.accountservice.dto.movement.MovementResponseDTO;
+import com.microservices.accountservice.model.Account;
 import com.microservices.accountservice.model.Movement;
+import com.microservices.accountservice.model.MovementType;
+import com.microservices.accountservice.repository.IAccountRepository;
 import com.microservices.accountservice.repository.IMovementRepository;
+import com.microservices.accountservice.service.IAccountService;
 import com.microservices.accountservice.service.IMovementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+
 public class MovementService implements IMovementService {
 
     private final IMovementRepository movementRepository;
+    private final IAccountRepository accountRepository;
 
-    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final String WITHDRAWAL = "WITHDRAWAL";
+    private static final String DEPOSIT = "DEPOSIT";
+    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy'T'HH:mm");
+    private static final String baseHour = "T00:00";
     @Override
     public List<MovementResponseDTO> getMovements() {
         List<Movement> movements;
         movements = movementRepository.findAll();
         return movements.stream().map(this::mapToResponse).toList();
     }
-
-
-
+    @Transactional
     @Override
     public MovementResponseDTO saveMovement(MovementRequestDTO movementsRequestDTO) {
-        MovementResponseDTO response;
-        Movement movement = maptToMovment(movementsRequestDTO);
-        movementRepository.save(movement);
-        response = mapToResponse(movement);
-        return response;
-    }
 
+        Movement movement = maptToMovement(movementsRequestDTO);
+        movementRepository.save(movement);
+        return mapToResponse(movement);
+    }
+    @Transactional
     @Override
     public MovementResponseDTO updateMovement(Long id, MovementRequestDTO movementRequestDTO) {
         Optional<Movement> movementData = movementRepository.findById(id);
@@ -47,33 +54,97 @@ public class MovementService implements IMovementService {
 
         if(movementData.isPresent()){
             Movement movement = movementData.get();
-            movement.setDate(LocalDate.parse(movementRequestDTO.getDate()));
-            movement.setMovementType(movementRequestDTO.getMovementType());
+            movement.setDate(LocalDateTime.parse(movementRequestDTO.getDate()));
+            movement.setMovementType(MovementType.valueOf(movementRequestDTO.getMovementType()));
             movement.setValue(movementRequestDTO.getValue());
             movement.setBalance(movementRequestDTO.getBalance());
         }
-        return null;
+        return movementResponseDTO;
     }
 
     @Override
     public void deleteMovement(Long id) {
         movementRepository.deleteById(id);
     }
+    @Transactional
+    @Override
+    public MovementResponseDTO makeMovement(MovementDTO movement) {
+        Optional<Account> accountData = accountRepository.findAccountByAccountNumber(movement.getAccountNumber());
 
-    private Movement maptToMovment(MovementRequestDTO movementsRequestDTO) {
-        return Movement.builder()
-                .date(LocalDate.parse(movementsRequestDTO.getDate(), dateTimeFormatter))
-                .movementType(movementsRequestDTO.getMovementType())
-                .value(movementsRequestDTO.getValue())
-                .balance(movementsRequestDTO.getBalance())
-                .build();
+        MovementResponseDTO response = new MovementResponseDTO();
+
+        int movementSize = splitValue(movement.getMovement()).size();
+        int lastMovement = movementSize-1;
+        String movementValue = splitValue(movement.getMovement()).get(lastMovement);
+        String movementType = splitValue(movement.getMovement()).get(0);
+
+        if (accountData.isPresent()){
+            Account account = accountData.get();
+            List<Movement> movementsByAccount = movementRepository.findMovementByAccount_AccountNumber(accountData.get().getAccountNumber());
+            movementsByAccount.sort((Comparator.comparing(Movement::getDate).reversed()));
+
+            BigDecimal balance = movementsByAccount.get(0).getBalance();
+            BigDecimal operation = makeOperation(movementType, BigDecimal.valueOf(Double.parseDouble(movementValue)), balance);
+
+            Movement resultMovement = Movement.builder()
+                    .date(LocalDateTime.now())
+                    .movementType(MovementType.valueOf(movementType))
+                    .value(BigDecimal.valueOf(Double.parseDouble(movementValue)))
+                    .balance(operation)
+                    .account(account)
+                    .build();
+
+            /*account.setMovements(movementsByAccount);
+            accountRepository.save(account);*/
+
+            response = mapToResponse(movementRepository.save(resultMovement));
+        }
+        return response;
+    }
+    private BigDecimal makeOperation(String type, BigDecimal amount, BigDecimal balance){
+        BigDecimal result;
+        if (type.equals(MovementService.WITHDRAWAL)){
+            result = balance.subtract(amount);
+        } else if (type.equals(MovementService.DEPOSIT)) {
+            result = balance.add(amount);
+        } else {
+            result = BigDecimal.valueOf(0);
+        }
+        return result;
+    }
+    private List<String> splitValue(String movement){
+        String[] splited = movement.split(" ");
+        return new ArrayList<>(Arrays.asList(splited));
+    }
+
+    private Movement maptToMovement(MovementRequestDTO movementsRequestDTO) {
+
+        Optional<Account> accountData = accountRepository.findAccountByAccountNumber(movementsRequestDTO.getAccount());
+        Movement movement;
+        if (accountData.isPresent()){
+            movement =  Movement.builder()
+                    .date(LocalDateTime.parse(movementsRequestDTO.getDate() + baseHour, dateTimeFormatter))
+                    .movementType(MovementType.valueOf(movementsRequestDTO.getMovementType()))
+                    .value(movementsRequestDTO.getValue())
+                    .balance(movementsRequestDTO.getBalance())
+                    .account(accountData.get())
+                    .build();
+        }else {
+            movement =  Movement.builder()
+                    .date(LocalDateTime.parse(movementsRequestDTO.getDate(), dateTimeFormatter))
+                    .movementType(MovementType.valueOf(movementsRequestDTO.getMovementType()))
+                    .value(movementsRequestDTO.getValue())
+                    .balance(movementsRequestDTO.getBalance())
+                    .build();
+        }
+        return movement;
     }
 
     private MovementResponseDTO mapToResponse(Movement movement) {
         return MovementResponseDTO.builder()
                 .id(movement.getId())
-                .date(movement.getDate())
-                .movementType(movement.getMovementType())
+                .date(LocalDate.from(movement.getDate()))
+                .movementType(String.valueOf(movement.getMovementType()))
                 .value(movement.getValue())
                 .balance(movement.getBalance())
                 .build();

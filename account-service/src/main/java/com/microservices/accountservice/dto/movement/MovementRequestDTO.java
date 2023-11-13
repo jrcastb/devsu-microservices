@@ -1,4 +1,4 @@
-package com.microservices.accountservice.dto;
+package com.microservices.accountservice.dto.movement;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,4 +17,5 @@ public class MovementRequestDTO {
     private String movementType;
     private BigDecimal value;
     private BigDecimal balance;
+    private String account;
 }

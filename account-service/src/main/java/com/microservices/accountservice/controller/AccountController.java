@@ -1,7 +1,7 @@
 package com.microservices.accountservice.controller;
 
-import com.microservices.accountservice.dto.AccountRequestDTO;
-import com.microservices.accountservice.dto.AccountResponseDTO;
+import com.microservices.accountservice.dto.account.AccountRequestDTO;
+import com.microservices.accountservice.dto.account.AccountResponseDTO;
 import com.microservices.accountservice.service.IAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,7 +23,6 @@ public class AccountController {
     }
     @PostMapping()
     public ResponseEntity<AccountResponseDTO> saveAccount(@RequestBody AccountRequestDTO accountRequestDTO){
-
         return new ResponseEntity<>(accountService.saveAccount(accountRequestDTO), HttpStatus.CREATED);
     }
 

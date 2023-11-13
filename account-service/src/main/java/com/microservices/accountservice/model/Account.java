@@ -1,18 +1,17 @@
 package com.microservices.accountservice.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "account")
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Builder
 public class Account {
     @Id
@@ -21,10 +20,12 @@ public class Account {
     @Column(name = "account_number")
     private String accountNumber;
     @Column(name = "account_type")
-    private String accountType;
+    private AccountType accountType;
     @Column(name = "initial_balance")
     private BigDecimal initialBalance;
     @Column(name = "status")
     private Boolean status;
-
+    @Column(name = "movements")
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+    List<Movement> movements;
 }

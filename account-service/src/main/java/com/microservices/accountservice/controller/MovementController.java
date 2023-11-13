@@ -1,7 +1,8 @@
 package com.microservices.accountservice.controller;
 
-import com.microservices.accountservice.dto.MovementRequestDTO;
-import com.microservices.accountservice.dto.MovementResponseDTO;
+import com.microservices.accountservice.dto.movement.MovementDTO;
+import com.microservices.accountservice.dto.movement.MovementRequestDTO;
+import com.microservices.accountservice.dto.movement.MovementResponseDTO;
 import com.microservices.accountservice.service.IMovementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,13 +17,18 @@ import java.util.List;
 public class MovementController {
     private final IMovementService movementService;
 
+    @PostMapping("/make")
+    public ResponseEntity<MovementResponseDTO> makeMovement(@RequestBody MovementDTO movement){
+        return new ResponseEntity<>(movementService.makeMovement(movement), HttpStatus.CREATED);
+    }
+
+    //CRUD
     @GetMapping
     public ResponseEntity<List<MovementResponseDTO>> getMovements(){
         return new ResponseEntity<>(movementService.getMovements(), HttpStatus.OK);
     }
     @PostMapping()
     public ResponseEntity<MovementResponseDTO> saveMovement(@RequestBody MovementRequestDTO movementRequestDTO){
-
         return new ResponseEntity<>(movementService.saveMovement(movementRequestDTO), HttpStatus.CREATED);
     }
 

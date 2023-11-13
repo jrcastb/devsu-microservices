@@ -18,6 +18,7 @@ public class Client extends Person{
     @Column(name = "status")
     private Boolean status;
 
+
     @Builder(builderMethodName = "clientBuilder")
     public Client(Long id, String name, Boolean gender, Integer age, String identification,
                   String address, String phoneNumber, String clientId, String password, Boolean status){

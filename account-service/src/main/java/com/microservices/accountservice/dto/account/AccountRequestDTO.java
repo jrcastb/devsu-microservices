@@ -1,5 +1,6 @@
-package com.microservices.accountservice.dto;
+package com.microservices.accountservice.dto.account;
 
+import com.microservices.accountservice.model.Movement;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,4 +18,10 @@ public class AccountRequestDTO {
     private String accountType;
     private BigDecimal initialBalance;
     private Boolean status;
+
+    public AccountRequestDTO(String accountNumber, String accountType, BigDecimal initialBalance) {
+        this.accountNumber = accountNumber;
+        this.accountType = accountType;
+        this.initialBalance = initialBalance;
+    }
 }

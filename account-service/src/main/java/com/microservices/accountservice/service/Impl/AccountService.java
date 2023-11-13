@@ -1,14 +1,14 @@
 package com.microservices.accountservice.service.Impl;
 
-import com.microservices.accountservice.dto.AccountRequestDTO;
-import com.microservices.accountservice.dto.AccountResponseDTO;
+import com.microservices.accountservice.dto.account.AccountRequestDTO;
+import com.microservices.accountservice.dto.account.AccountResponseDTO;
 import com.microservices.accountservice.model.Account;
+import com.microservices.accountservice.model.AccountType;
 import com.microservices.accountservice.repository.IAccountRepository;
 import com.microservices.accountservice.service.IAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,8 +19,6 @@ import java.util.Optional;
 public class AccountService implements IAccountService {
 
     private final IAccountRepository accountRepository;
-    private final WebClient.Builder webClientBuilder;
-
 
     @Override
     public List<AccountResponseDTO> getAccounts() {
@@ -46,7 +44,7 @@ public class AccountService implements IAccountService {
         if(accountData.isPresent()){
             Account account = accountData.get();
             account.setAccountNumber(accountRequestDTO.getAccountNumber());
-            account.setAccountType(accountRequestDTO.getAccountType());
+            account.setAccountType(AccountType.valueOf(accountRequestDTO.getAccountType()));
             account.setInitialBalance(accountRequestDTO.getInitialBalance());
             account.setStatus(accountRequestDTO.getStatus());
             accountRepository.save(account);
@@ -64,7 +62,7 @@ public class AccountService implements IAccountService {
     private Account mapToAccount(AccountRequestDTO accountRequestDTO) {
         return Account.builder()
                 .accountNumber(accountRequestDTO.getAccountNumber())
-                .accountType(accountRequestDTO.getAccountType())
+                .accountType(AccountType.valueOf(accountRequestDTO.getAccountType()))
                 .initialBalance(accountRequestDTO.getInitialBalance())
                 .status(accountRequestDTO.getStatus())
                 .build();
@@ -73,7 +71,7 @@ public class AccountService implements IAccountService {
         return AccountResponseDTO.builder()
                 .id(account.getId())
                 .accountNumber(account.getAccountNumber())
-                .accountType(account.getAccountType())
+                .accountType(String.valueOf(account.getAccountType()))
                 .initialBalance(account.getInitialBalance())
                 .status(account.getStatus())
                 .build();

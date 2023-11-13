@@ -1,4 +1,4 @@
-package com.microservices.accountservice.dto;
+package com.microservices.accountservice.dto.movement;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
