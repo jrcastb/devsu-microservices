@@ -3,6 +3,7 @@ package com.microservices.accountservice.service.Impl;
 import com.microservices.accountservice.dto.movement.MovementDTO;
 import com.microservices.accountservice.dto.movement.MovementRequestDTO;
 import com.microservices.accountservice.dto.movement.MovementResponseDTO;
+import com.microservices.accountservice.exception.ApiException;
 import com.microservices.accountservice.model.Account;
 import com.microservices.accountservice.model.Movement;
 import com.microservices.accountservice.model.MovementType;
@@ -70,7 +71,6 @@ public class MovementService implements IMovementService {
     @Override
     public MovementResponseDTO makeMovement(MovementDTO movement) {
         Optional<Account> accountData = accountRepository.findAccountByAccountNumber(movement.getAccountNumber());
-
         MovementResponseDTO response = new MovementResponseDTO();
 
         int movementSize = splitValue(movement.getMovement()).size();
@@ -94,23 +94,25 @@ public class MovementService implements IMovementService {
                     .account(account)
                     .build();
 
-            /*account.setMovements(movementsByAccount);
-            accountRepository.save(account);*/
-
             response = mapToResponse(movementRepository.save(resultMovement));
         }
         return response;
     }
     private BigDecimal makeOperation(String type, BigDecimal amount, BigDecimal balance){
         BigDecimal result;
-        if (type.equals(MovementService.WITHDRAWAL)){
-            result = balance.subtract(amount);
-        } else if (type.equals(MovementService.DEPOSIT)) {
-            result = balance.add(amount);
+        BigDecimal depositResult = balance.add(amount);
+        BigDecimal withdrawalResult = balance.subtract(amount);
+        if (type.equals(MovementService.WITHDRAWAL) && isValidOperation(withdrawalResult)){
+            result = withdrawalResult;
+        } else if (type.equals(MovementService.DEPOSIT) && isValidOperation(amount)) {
+            result = depositResult;
         } else {
-            result = BigDecimal.valueOf(0);
+            throw new ApiException("400", "saldo no disponible", 400);
         }
         return result;
+    }
+    private Boolean isValidOperation(BigDecimal operation){
+        return operation.signum() > 0;
     }
     private List<String> splitValue(String movement){
         String[] splited = movement.split(" ");
