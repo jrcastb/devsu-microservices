@@ -49,7 +49,6 @@ public class ReportService implements IReportService {
             e.printStackTrace();
         }
     }
-
     private List<Report> mergeData(String client, List<Account> accounts, List<Movement> movements){
 
         Map<Account, List<Movement>> movementsByAccount = movements.stream()
