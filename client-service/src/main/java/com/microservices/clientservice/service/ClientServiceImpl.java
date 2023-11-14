@@ -8,6 +8,7 @@ import com.microservices.clientservice.repository.PersonRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.Optional;
 public class ClientServiceImpl implements ClientService{
 
     private final ClientRepository clientRepository;
-
+    private final KafkaTemplate kafkaTemplate;
     //@Transactional(readOnly = true)
 
     @Override
@@ -36,6 +37,7 @@ public class ClientServiceImpl implements ClientService{
         ClientResponseDTO response;
         Client client = mapToClient(clientRequestDTO);
         clientRepository.save(client);
+        kafkaTemplate.send("reportTopic", client);
         response = mapToResponse(client);
         return response;
     }

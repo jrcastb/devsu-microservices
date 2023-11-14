@@ -19,6 +19,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="devsu-microservices" target="17" />
       <module name="product-service" target="17" />
     </bytecodeTargetLevel>
   </component>
