@@ -1,5 +1,6 @@
 package com.microservices.accountservice.dto.movement;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.microservices.accountservice.dto.account.AccountRequestDTO;
 import lombok.*;
 
@@ -10,6 +11,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MovementDTO extends AccountRequestDTO {
+    @JsonProperty("movimiento")
     private String movement;
 
     @Builder(builderMethodName = "movementBuilder")

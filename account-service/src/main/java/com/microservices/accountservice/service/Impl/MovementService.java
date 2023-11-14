@@ -29,9 +29,10 @@ public class MovementService implements IMovementService {
     private final IMovementRepository movementRepository;
     private final IAccountRepository accountRepository;
 
-    private static final String WITHDRAWAL = "WITHDRAWAL";
-    private static final String DEPOSIT = "DEPOSIT";
+    private static final String WITHDRAWAL = "RETIRO";
+    private static final String DEPOSIT = "DEPOSITO";
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy'T'HH:mm");
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final String baseHour = "T00:00";
     @Override
     public List<MovementResponseDTO> getMovements() {
@@ -42,7 +43,6 @@ public class MovementService implements IMovementService {
     @Transactional
     @Override
     public MovementResponseDTO saveMovement(MovementRequestDTO movementsRequestDTO) {
-
         Movement movement = maptToMovement(movementsRequestDTO);
         movementRepository.save(movement);
         return mapToResponse(movement);
@@ -55,10 +55,12 @@ public class MovementService implements IMovementService {
 
         if(movementData.isPresent()){
             Movement movement = movementData.get();
-            movement.setDate(LocalDateTime.parse(movementRequestDTO.getDate()));
-            movement.setMovementType(MovementType.valueOf(movementRequestDTO.getMovementType()));
+            movement.setDate(LocalDateTime.parse(movementRequestDTO.getDate()+baseHour, dateTimeFormatter));
+            movement.setMovementType(MovementType.valueOf(movementRequestDTO.getMovementType().toUpperCase()));
             movement.setValue(movementRequestDTO.getValue());
             movement.setBalance(movementRequestDTO.getBalance());
+            movementRepository.save(movement);
+            movementResponseDTO = mapToResponse(movement);
         }
         return movementResponseDTO;
     }
@@ -84,11 +86,11 @@ public class MovementService implements IMovementService {
             movementsByAccount.sort((Comparator.comparing(Movement::getDate).reversed()));
 
             BigDecimal balance = movementsByAccount.get(0).getBalance();
-            BigDecimal operation = makeOperation(movementType, BigDecimal.valueOf(Double.parseDouble(movementValue)), balance);
+            BigDecimal operation = makeOperation(movementType.toUpperCase(), BigDecimal.valueOf(Double.parseDouble(movementValue)), balance);
 
             Movement resultMovement = Movement.builder()
                     .date(LocalDateTime.now())
-                    .movementType(MovementType.valueOf(movementType))
+                    .movementType(MovementType.valueOf(movementType.toUpperCase()))
                     .value(BigDecimal.valueOf(Double.parseDouble(movementValue)))
                     .balance(operation)
                     .account(account)
@@ -126,15 +128,15 @@ public class MovementService implements IMovementService {
         if (accountData.isPresent()){
             movement =  Movement.builder()
                     .date(LocalDateTime.parse(movementsRequestDTO.getDate() + baseHour, dateTimeFormatter))
-                    .movementType(MovementType.valueOf(movementsRequestDTO.getMovementType()))
+                    .movementType(MovementType.valueOf(movementsRequestDTO.getMovementType().toUpperCase()))
                     .value(movementsRequestDTO.getValue())
                     .balance(movementsRequestDTO.getBalance())
                     .account(accountData.get())
                     .build();
         }else {
             movement =  Movement.builder()
-                    .date(LocalDateTime.parse(movementsRequestDTO.getDate(), dateTimeFormatter))
-                    .movementType(MovementType.valueOf(movementsRequestDTO.getMovementType()))
+                    .date(LocalDateTime.parse(movementsRequestDTO.getDate()+baseHour, dateTimeFormatter))
+                    .movementType(MovementType.valueOf(movementsRequestDTO.getMovementType().toUpperCase()))
                     .value(movementsRequestDTO.getValue())
                     .balance(movementsRequestDTO.getBalance())
                     .build();
@@ -143,10 +145,12 @@ public class MovementService implements IMovementService {
     }
 
     private MovementResponseDTO mapToResponse(Movement movement) {
+        LocalDateTime dateTime = movement.getDate();
+        LocalDate date = dateTime.toLocalDate();
         return MovementResponseDTO.builder()
                 .id(movement.getId())
-                .date(LocalDate.from(movement.getDate()))
-                .movementType(String.valueOf(movement.getMovementType()))
+                .date(date.format(dateFormatter))
+                .movementType(String.valueOf(movement.getMovementType()).toUpperCase())
                 .value(movement.getValue())
                 .balance(movement.getBalance())
                 .build();
