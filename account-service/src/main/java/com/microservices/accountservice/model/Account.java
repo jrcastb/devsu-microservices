@@ -25,7 +25,8 @@ public class Account {
     private BigDecimal initialBalance;
     @Column(name = "status")
     private Boolean status;
-    @Column(name = "movements")
+    @Column(name = "client_id")
+    private Long clientId;
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     List<Movement> movements;
 }

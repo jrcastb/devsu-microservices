@@ -1,0 +1,22 @@
+[
+  {
+    "date": "2023-11-12T00:00",
+    "client": "jose",
+    "accountNumber": "123ASB",
+    "accountType": "SAVINGS",
+    "initialBalance": 10000.00,
+    "status": true,
+    "movement": 10000.00,
+    "balance": 10000.00
+  },
+  {
+    "date": "2023-11-14T12:27:08.083978",
+    "client": "jose",
+    "accountNumber": "123ASB",
+    "accountType": "SAVINGS",
+    "initialBalance": 10000.00,
+    "status": true,
+    "movement": 1000.00,
+    "balance": 9000.00
+  }
+]

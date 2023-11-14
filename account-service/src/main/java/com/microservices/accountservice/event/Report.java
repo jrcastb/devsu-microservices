@@ -1,24 +1,24 @@
-package com.microservices.accountservice.dto.account;
+package com.microservices.accountservice.event;
 
-import com.microservices.accountservice.model.Movement;
-import jakarta.persistence.Column;
+import com.microservices.accountservice.model.AccountType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.List;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 @Builder
-public class AccountResponseDTO {
-    private Long id;
-    private Long clientId;
+public class Report {
+    private String date;
+    private String client;
     private String accountNumber;
-    private String accountType;
+    private AccountType accountType;
     private BigDecimal initialBalance;
     private Boolean status;
+    private BigDecimal movement;
+    private BigDecimal balance;
 }

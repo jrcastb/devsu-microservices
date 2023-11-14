@@ -65,6 +65,7 @@ public class AccountService implements IAccountService {
                 .accountType(AccountType.valueOf(accountRequestDTO.getAccountType()))
                 .initialBalance(accountRequestDTO.getInitialBalance())
                 .status(accountRequestDTO.getStatus())
+                .clientId(accountRequestDTO.getClientId())
                 .build();
     }
     private AccountResponseDTO mapToResponse(Account account) {
@@ -74,6 +75,7 @@ public class AccountService implements IAccountService {
                 .accountType(String.valueOf(account.getAccountType()))
                 .initialBalance(account.getInitialBalance())
                 .status(account.getStatus())
+                .clientId(account.getClientId())
                 .build();
     }
 }

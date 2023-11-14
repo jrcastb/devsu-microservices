@@ -18,6 +18,7 @@ public class AccountRequestDTO {
     private String accountType;
     private BigDecimal initialBalance;
     private Boolean status;
+    private Long clientId;
 
     public AccountRequestDTO(String accountNumber, String accountType, BigDecimal initialBalance) {
         this.accountNumber = accountNumber;
