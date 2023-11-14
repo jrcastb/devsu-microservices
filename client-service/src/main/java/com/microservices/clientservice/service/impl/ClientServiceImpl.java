@@ -1,11 +1,11 @@
-package com.microservices.clientservice.service;
+package com.microservices.clientservice.service.impl;
 
-import com.microservices.clientservice.dto.ClientRequestDTO;
-import com.microservices.clientservice.dto.ClientResponseDTO;
+import com.microservices.clientservice.dto.client.ClientRequestDTO;
+import com.microservices.clientservice.dto.client.ClientResponseDTO;
 import com.microservices.clientservice.model.Client;
 import com.microservices.clientservice.repository.ClientRepository;
-import com.microservices.clientservice.repository.PersonRepository;
 
+import com.microservices.clientservice.service.ClientService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -17,11 +17,9 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class ClientServiceImpl implements ClientService{
+public class ClientServiceImpl implements ClientService {
 
     private final ClientRepository clientRepository;
-    private final KafkaTemplate kafkaTemplate;
-    //@Transactional(readOnly = true)
 
     @Override
     public List<ClientResponseDTO> getClients() {
@@ -37,7 +35,7 @@ public class ClientServiceImpl implements ClientService{
         ClientResponseDTO response;
         Client client = mapToClient(clientRequestDTO);
         clientRepository.save(client);
-        kafkaTemplate.send("reportTopic", client);
+
         response = mapToResponse(client);
         return response;
     }
@@ -68,6 +66,17 @@ public class ClientServiceImpl implements ClientService{
     @Override
     public void deleteClient(Long id) {
         clientRepository.deleteById(id);
+    }
+
+    @Override
+    public ClientResponseDTO getClientByName(String name) {
+        Optional<Client> clientData = clientRepository.findClientByName(name);
+        ClientResponseDTO clientResponseDTO = new ClientResponseDTO();
+        if (clientData.isPresent()){
+            Client client = clientData.get();
+            clientResponseDTO = mapToResponse(client);
+        }
+        return clientResponseDTO;
     }
 
 

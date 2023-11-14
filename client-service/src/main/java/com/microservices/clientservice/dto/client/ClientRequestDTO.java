@@ -1,4 +1,4 @@
-package com.microservices.clientservice.dto;
+package com.microservices.clientservice.dto.client;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

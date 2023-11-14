@@ -1,7 +1,7 @@
 package com.microservices.clientservice.controller;
 
-import com.microservices.clientservice.dto.ClientRequestDTO;
-import com.microservices.clientservice.dto.ClientResponseDTO;
+import com.microservices.clientservice.dto.client.ClientRequestDTO;
+import com.microservices.clientservice.dto.client.ClientResponseDTO;
 import com.microservices.clientservice.service.ClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,7 +24,6 @@ public class ClientController {
     }
     @PostMapping()
     public ResponseEntity<ClientResponseDTO> saveClient(@RequestBody ClientRequestDTO clientRequestDTO){
-
         return new ResponseEntity<>(clientService.saveClient(clientRequestDTO), HttpStatus.CREATED);
     }
 
