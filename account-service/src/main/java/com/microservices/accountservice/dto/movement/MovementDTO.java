@@ -7,9 +7,9 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @EqualsAndHashCode(callSuper = true)
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 public class MovementDTO extends AccountRequestDTO {
     @JsonProperty("movimiento")
     private String movement;

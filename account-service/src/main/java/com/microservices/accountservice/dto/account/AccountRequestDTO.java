@@ -2,18 +2,15 @@ package com.microservices.accountservice.dto.account;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.microservices.accountservice.model.Movement;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
 public class AccountRequestDTO {
     @JsonProperty("numero_de_cuenta")
     private String accountNumber;
