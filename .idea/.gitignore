@@ -10,6 +10,4 @@
 .classpath
 .project
 .settings/
-/docker/
-/mysql_keycloak_data/
-/realms/
+/discovery-server/target/
