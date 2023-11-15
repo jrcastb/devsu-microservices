@@ -10,7 +10,7 @@
     "balance": 100000.00
   },
   {
-    "date": "14/11/2023",
+    "date": "15/11/2023",
     "client": "ricardo",
     "accountNumber": "123ASB",
     "accountType": "SAVINGS",
@@ -20,7 +20,7 @@
     "balance": 99000.00
   },
   {
-    "date": "14/11/2023",
+    "date": "15/11/2023",
     "client": "ricardo",
     "accountNumber": "123ASB",
     "accountType": "SAVINGS",
@@ -30,7 +30,7 @@
     "balance": 98000.00
   },
   {
-    "date": "14/11/2023",
+    "date": "15/11/2023",
     "client": "ricardo",
     "accountNumber": "123ASB",
     "accountType": "SAVINGS",
@@ -38,5 +38,15 @@
     "status": true,
     "movement": 1000.00,
     "balance": 97000.00
+  },
+  {
+    "date": "15/11/2023",
+    "client": "ricardo",
+    "accountNumber": "123ASB",
+    "accountType": "SAVINGS",
+    "initialBalance": 10000.00,
+    "status": true,
+    "movement": 1000.00,
+    "balance": 96000.00
   }
 ]

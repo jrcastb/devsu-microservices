@@ -36,7 +36,7 @@ public class ClientTest {
                         .content(objectMapper.writeValueAsString(TestUtilGenerator.getClientRequestDTO()))
         ).andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.name").exists())
+                .andExpect(jsonPath("$.nombres").exists())
                 .andReturn();
 
         ClientResponseDTO resultSaveClient = objectMapper.readValue(result.getResponse().getContentAsString(), ClientResponseDTO.class);

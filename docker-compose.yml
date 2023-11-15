@@ -1,6 +1,52 @@
 ---
 version: '3.7'
 services:
+  mysql:
+    container_name: mysql_devsu
+    image: mysql:latest
+    command: mysqld --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: account_service
+      #      MYSQL_USER: sandbox_user
+      MYSQL_PASSWORD: admin
+    expose:
+       - '3306'
+    ports:
+      - '3306:3306'
+    volumes:
+      - './docker/db/data:/var/lib/mysql'
+
+  ## Keycloak Config with Mysql database
+  keycloak-mysql:
+    container_name: keycloak-mysql
+    image: mysql:5.7
+    volumes:
+      - ./mysql_keycloak_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: keycloak
+      MYSQL_PASSWORD: password
+
+  keycloak:
+    container_name: keycloak
+    image: quay.io/keycloak/keycloak:18.0.0
+    command: [ "start-dev", "--import-realm" ]
+    environment:
+      DB_VENDOR: MYSQL
+      DB_ADDR: mysql
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_PASSWORD: password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./realms/:/opt/keycloak/data/import/
+    depends_on:
+      - keycloak-mysql
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
@@ -26,3 +72,63 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+  ## Zipkin
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+
+  ## Eureka Server
+  discovery-server:
+    image: jrcastb/discovery-server-layered:latest
+    container_name: discovery-server
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING.ZIPKIN.BASE-URL=http://localhost:9411/api/v2/spans
+    depends_on:
+      - zipkin
+
+  api-gateway:
+    image: jrcastb/api-gateway-layered:latest
+    container_name: api-gateway
+    ports:
+      - "8181:8080"
+    expose:
+      - "8181"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING.ZIPKIN.BASE-URL=http://localhost:9411/api/v2/spans
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY= TRACE
+    depends_on:
+      - zipkin
+      - discovery-server
+      - keycloak
+
+  client-service:
+    container_name: client-service
+    image: jrcastb/client-service-layered:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING.ZIPKIN.BASE-URL=http://localhost:9411/api/v2/spans
+      - SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/client_service
+    depends_on:
+      - mysql
+      - discovery-server
+      - api-gateway
+
+  account-service:
+    container_name: account-service
+    image: jrcastb/account-service-layered:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING.ZIPKIN.BASE-URL=http://localhost:9411/api/v2/spans
+      - SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/account_service
+    depends_on:
+      - mysql
+      - broker
+      - zipkin
+      - discovery-server
+      - api-gateway
