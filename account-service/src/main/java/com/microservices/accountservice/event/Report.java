@@ -2,16 +2,13 @@ package com.microservices.accountservice.event;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.microservices.accountservice.model.AccountType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
 @Builder
 public class Report {
     @JsonProperty("fecha")

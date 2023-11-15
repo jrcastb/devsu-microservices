@@ -2,15 +2,13 @@ package com.microservices.clientservice.dto.report;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.microservices.clientservice.dto.client.ClientResponseDTO;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
 public class ReportDTO {
     @JsonProperty("cliente")
     private ClientResponseDTO client;
