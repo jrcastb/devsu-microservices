@@ -49,6 +49,8 @@ public class ReportService implements IReportService {
             e.printStackTrace();
         }
     }
+
+
     private List<Report> mergeData(String client, List<Account> accounts, List<Movement> movements){
 
         Map<Account, List<Movement>> movementsByAccount = movements.stream()
@@ -58,21 +60,23 @@ public class ReportService implements IReportService {
                 .flatMap(account -> {
                     String accountNumber = account.getAccountNumber();
                     List<Movement> movementByAccount = movementsByAccount.getOrDefault(account, List.of());
-
                     return movementByAccount.stream()
-                            .map( movement -> Report.builder()
-                                    .date(movement.getDate().toLocalDate().format(pattern))
-                                    .client(client)
-                                    .accountNumber(accountNumber)
-                                    .accountType(account.getAccountType())
-                                    .initialBalance(account.getInitialBalance())
-                                    .status(account.getStatus())
-                                    .movement(movement.getValue())
-                                    .balance(movement.getBalance())
-                                    .build());
+                            .map( movement -> mapToReport(movement, account, accountNumber, client));
                 }).collect(Collectors.toList());
     }
 
+    private Report mapToReport(Movement movement, Account account, String accountNumber, String client){
+        return Report.builder()
+                .date(movement.getDate().toLocalDate().format(pattern))
+                .client(client)
+                .accountNumber(accountNumber)
+                .accountType(account.getAccountType())
+                .initialBalance(account.getInitialBalance())
+                .status(account.getStatus())
+                .movement(movement.getValue())
+                .balance(movement.getBalance())
+                .build();
+    }
     private List<String> extractAccountNumber(List<Account> accounts){
         return accounts.stream().map(Account::getAccountNumber).collect(Collectors.toList());
     }

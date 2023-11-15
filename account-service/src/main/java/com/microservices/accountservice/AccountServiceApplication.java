@@ -13,23 +13,11 @@ import java.io.IOException;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@Slf4j
-public class AccountServiceApplication {
 
-    private final IReportService reportService;
-    public AccountServiceApplication(IReportService reportService) {
-        this.reportService = reportService;
-    }
+public class AccountServiceApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(AccountServiceApplication.class, args);
-    }
-
-    @KafkaListener(topics = "reportTopic")
-    public void handleReport(ReportEvent reportEvent) throws IOException {
-        //generate report
-        log.info("Orden de reporte recibida para cliente - {}", reportEvent.getClient().getName());
-        reportService.generateReport(reportEvent);
     }
 
 }

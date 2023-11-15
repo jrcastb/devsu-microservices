@@ -75,12 +75,12 @@ public class MovementService implements IMovementService {
         Optional<Account> accountData = accountRepository.findAccountByAccountNumber(movement.getAccountNumber());
         MovementResponseDTO response = new MovementResponseDTO();
 
-        int movementSize = splitValue(movement.getMovement()).size();
-        int lastMovement = movementSize-1;
-        String movementValue = splitValue(movement.getMovement()).get(lastMovement);
-        String movementType = splitValue(movement.getMovement()).get(0);
-
         if (accountData.isPresent()){
+            int movementSize = splitValue(movement.getMovement()).size();
+            int lastMovement = movementSize-1;
+            String movementValue = splitValue(movement.getMovement()).get(lastMovement);
+            String movementType = splitValue(movement.getMovement()).get(0);
+
             Account account = accountData.get();
             List<Movement> movementsByAccount = movementRepository.findMovementByAccount_AccountNumber(accountData.get().getAccountNumber());
             movementsByAccount.sort((Comparator.comparing(Movement::getDate).reversed()));
